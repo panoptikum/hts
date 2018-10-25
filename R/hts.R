@@ -20,6 +20,9 @@
 #' states of 3 characters (e.g., "VIC") and cities of 4 characters (e.g.,
 #' "Melb") All the bottom names must be of the same length, with number of
 #' characters for each segment the same for all series.
+#' @param sep indicates the separator within the bottom level names that
+#' determine the node structure. For instance, one of the bottom level names 
+#' is named "VIC_MELB". Then you specify sep as "_". Bottom level names may have different length.
 #' @param ... Extra arguments passed to \code{print} and \code{summary}.
 #' @return \item{bts}{Multivariate time series containing the bottom level
 #' series} \item{nodes}{Information about the nodes of a hierarchical time
@@ -77,7 +80,7 @@ hts <- function(y, nodes, bnames = colnames(y), characters, sep) {
   if (nbts <= 1L) {
     stop("Argument y must be a multivariate time series.", call. = FALSE)
   }
-  if (missing(characters)) { # Arg "characters" not specified
+  if (missing(characters) && missing(sep)) { # Arg "characters" not specified
     message("Since argument characters are not specified, the default labelling system is used.")
     if (missing(nodes)) {
       nodes <- list(nbts)
@@ -116,7 +119,7 @@ hts <- function(y, nodes, bnames = colnames(y), characters, sep) {
       #   labels <- c(hn[-length(hn)], b.list)
       # }
     }
-  } else { # Specified "characters" automates the node structure
+  } else { # Specified "characters" or "sep" automates the node structure
     if (missing(sep)) {
       if (!all(nchar(bnames)[1L] == nchar(bnames)[-1L])) {
         stop("The bottom names must be of the same length.", call. = FALSE)
@@ -261,8 +264,6 @@ CreateNodes <- function(bnames, characters, sep) {
     nodes <- lapply(2L:nc.token, function(x) {
       x_1 <- unique.str[[x-1]]
       cnt <- sapply(x_1, function(z) {
-        if (x==3)
-          browser()
         vec <- sapply(bnames_split, function(i) {paste(i[1:(x-1)], collapse = "") == z}) 
         sum(vec, na.rm = TRUE)
       })
